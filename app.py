@@ -11,25 +11,17 @@ def webhook():
         return jsonify({'error': 'Content-Type must be application/json'}), 415
 
     data = request.json
-    payment_id = data['data']['id']  # Pegue o ID do pagamento da notificação
+    print(f"Notificação de pagamento recebida: {data}")
     
-    # Consultar a API do Mercado Pago para verificar o status do pagamento
-    url = f'https://api.mercadopago.com/v1/payments/{payment_id}'
-    headers = {'Authorization': f'Bearer {ACCESS_TOKEN}'}
-    
-    response = requests.get(url, headers=headers)
-    payment_data = response.json()
+    payment_id = data['data']['id']  # ID do pagamento recebido
+    status = data['data']['status']  # Status do pagamento (aprovado, pendente, etc.)
 
-    if payment_data['status'] == 'approved':
-        # Lógica para processar pagamento aprovado
-        machine_id = data['data']['additional_info']['items'][0]['id']  # ID do caixa
-        amount = data['data']['amount']  # Valor do pagamento
-        
-        print(f"Pagamento aprovado! Máquina ID: {machine_id}, Valor: {amount}")
+    if status == 'approved':
+        print(f"Pagamento aprovado! ID: {payment_id}")
+        # Aqui você pode realizar outras ações, como atualizar o status no banco de dados
     else:
-        # Lógica para processar pagamentos não aprovados
-        print(f"Pagamento não aprovado. Status: {payment_data['status']}")
-
+        print(f"Pagamento não aprovado. Status: {status}")
+    
     return jsonify({'status': 'ok'}), 200
 
 if __name__ == '__main__':
